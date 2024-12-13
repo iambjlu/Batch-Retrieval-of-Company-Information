@@ -7,7 +7,7 @@
 把公司名字關鍵字放進companies.txt(與此程式檔案置於同樣目錄)
 可以獲得output.csv，可以使用Excel開啟</pre>
 
-<h3>main_company_no</h3>
+<h3>main_company_no.py</h3>
 <pre>使用說明:
 把公司統編放進companies.txt(與此程式檔案置於同樣目錄)
 可以獲得output.csv，可以使用Excel開啟</pre>

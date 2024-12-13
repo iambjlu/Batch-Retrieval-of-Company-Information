@@ -1,3 +1,4 @@
+import os
 import requests
 import xml.etree.ElementTree as ET
 import csv
@@ -7,6 +8,17 @@ import csv
 把統編放進companies.txt(與此程式檔案置於同樣目錄)
 可以獲得output.csv
 '''
+
+# 檢查是否有權限寫入檔案
+def check_write_permission(output_file):
+    try:
+        with open(output_file, 'w', encoding='utf-8-sig', newline='') as file:
+            file.write("")  # 嘗試寫入空字串
+        os.remove(output_file)  # 測試完成後刪除暫時檔案
+        # print(f"有權限可以存取 {output_file}.")
+    except IOError:
+        print(f"沒有存取 {output_file} 的權限。請確認該檔案未被其他應用程式佔用，然後再試一次。")
+        exit(1)
 
 # 讀取統一編號列表
 def read_accounting_numbers(file_path):
@@ -22,7 +34,7 @@ def fetch_data_from_api(accounting_number):
     if response.status_code == 200:
         return response.text
     else:
-        print(f"Failed to fetch data for {accounting_number}. HTTP {response.status_code}")
+        print(f"無法獲得 {accounting_number} 的資料。 HTTP {response.status_code}")
         return None
 
 # 解析 XML 資料
@@ -53,24 +65,25 @@ def parse_xml_data(xml_data):
 
 # 保存資料到 CSV
 def save_to_csv(data, output_file):
+    check_write_permission(output_file) # 檢查寫入權限
     if not data:
-        print("No data to save.")
+        print("沒有可儲存的資料")
         return
-
     fieldnames = list(data[0].keys())
     with open(output_file, 'w', encoding='utf-8-sig', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
-    print(f"Data saved to {output_file}")
+    print(f"已儲存至 {output_file}")
 
 # 主程式
 def main(input_file, output_file):
+    check_write_permission(output_file) # 檢查寫入權限
     accounting_numbers = read_accounting_numbers(input_file)
     all_data = []
 
     for number in accounting_numbers:
-        print(f"Fetching data for {number}...")
+        print(f"正在取得 {number} 的資料...")
         xml_data = fetch_data_from_api(number)
         if xml_data:
             parsed_data = parse_xml_data(xml_data)
